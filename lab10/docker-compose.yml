@@ -1,0 +1,40 @@
+version: '3.4'
+
+services:
+  webapi_labs:
+    image: ${DOCKER_REGISTRY-}webapilabs
+    build:
+      context: .
+      dockerfile: WebAPI_Labs/Dockerfile
+    container_name: webapi
+    depends_on:
+      - mssql
+    restart: always
+    ports:
+      - "51217:80"
+      - "44349:443"
+    networks:
+      - lab_network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:80;http://+:443
+      - ASPNETCORE_HTTPS_PORT=44349
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets/:/root/.microsoft/usersecrets
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https/
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: mssql
+    restart: always
+    environment:
+      SA_PASSWORD: fa3FDSF98sf93##d8fid
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - lab_network
+
+networks:
+  lab_network:
+    driver: bridge
